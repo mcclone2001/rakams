@@ -9,4 +9,4 @@ RUN bundle install
 RUN mkdir /src
 COPY . /src
 
-CMD cd src && rails server -p 5000 -b '0.0.0.0'
+CMD rm -f /src/tmp/pids/server.pid && cd src && rails server -p 5000 -b '0.0.0.0'
