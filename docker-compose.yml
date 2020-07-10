@@ -1,4 +1,8 @@
 version: '3'
+networks:
+    kafka-net:
+        driver: bridge
+
 services:
     db:
         image: "postgres:9.5"
@@ -8,23 +12,31 @@ services:
             - ./pgdata:/var/lib/postgresql/data
         environment:
             - POSTGRES_PASSWORD=password
-    zookeeper-server:
+    zookeeper:
         image: 'bitnami/zookeeper:latest'
+        networks:
+            - kafka-net
         ports:
             - '2181:2181'
         environment:
             - ALLOW_ANONYMOUS_LOGIN=yes
-    kafka-server:
+    kafka:
         image: 'bitnami/kafka:latest'
+        networks:
+            - kafka-net
         ports:
             - '9092:9092'
+            - '9093:9093'
         environment:
-            - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181
-            - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+            - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
             - ALLOW_PLAINTEXT_LISTENER=yes
+            - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+            - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+            - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+            - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
         depends_on:
-            - zookeeper-server
-    statsd-server:
+            - zookeeper
+    statsd:
         image: "graphiteapp/graphite-statsd"
         ports:
             - "80:80"
@@ -34,5 +46,7 @@ services:
             - "8126:8126"
     app:
         build: .
+        networks:
+            - kafka-net
         ports:
             - "5000:5000"
