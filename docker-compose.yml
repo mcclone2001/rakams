@@ -50,3 +50,6 @@ services:
             - kafka-net
         ports:
             - "5000:5000"
+        environment:
+            - KAFKA_SEED_BROKERS=kafka://kafka:9092
+            - KAFKA_CLIENT_ID=example_app
