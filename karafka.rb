@@ -5,6 +5,9 @@ ENV['KARAFKA_ENV'] = ENV['RAILS_ENV']
 require ::File.expand_path('../config/environment', __FILE__)
 Rails.application.eager_load!
 
+ENV['KAFKA_CLIENT_ID'] ||= 'example_app'
+ENV['KAFKA_SEED_BROKERS'] ||= 'kafka://localhost:9092'
+
 # This lines will make Karafka print to stdout like puma or unicorn
 if Rails.env.development?
   Rails.logger.extend(
