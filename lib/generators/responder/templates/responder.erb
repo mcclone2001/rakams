@@ -1,0 +1,6 @@
+class <%= class_name %>Responder < ApplicationResponder
+    topic :<%= topic %>
+    def respond(object)
+        respond_to :<%= topic %>, object.to_json
+    end
+end
