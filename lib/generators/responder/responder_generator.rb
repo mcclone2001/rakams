@@ -3,9 +3,8 @@ class ResponderGenerator < Rails::Generators::NamedBase
 
   argument :topic, type: :string, default: [], banner: "topic"
   argument :object, type: :string, default: [], banner: "object"
-  # argument :serializer, type: :string, default: [], banner: "topic"
 
   def copy_initializer_file
-    template "responder.erb", "app/responders/#{class_name}.rb"
+    template "responder.erb", "app/responders/#{file_name}_responder.rb"
   end
 end
