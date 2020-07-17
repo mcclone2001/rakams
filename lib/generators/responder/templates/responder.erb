@@ -1,10 +1,6 @@
-class <%= class_name %>Responder < ApplicationResponder
+class <%= class_name %> < ApplicationResponder
     topic :<%= topic %>
     def respond(event)
-        if event.kind_of? KafkaEvent
-            respond_to :<%= topic %>, event.data.to_json, headers: event.headers
-        else
-            respond_to :<%= topic %>, event.to_json
-        end
+        respond_to :<%= topic %>, event.data.to_json, headers: event.headers
     end
 end

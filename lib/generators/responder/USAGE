@@ -1,8 +1,12 @@
+Usage:
+    rails generate responder NOMBRE TOPICO
+
 Description:
-    Explain the generator
+    Crea una clase que extiende de ApplicationResponder en app/responders
+    Para enviar mensajes a un cluster Kafka
 
 Example:
-    rails generate responder Thing
+    rails generate responder Paciente pacientes_creados
 
     This will create:
-        what/will/it/create
+        app/responders/paciente.rb
