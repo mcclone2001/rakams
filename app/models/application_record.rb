@@ -7,4 +7,8 @@ class ApplicationRecord < ActiveRecord::Base
   end
   
   self.abstract_class = true
+
+  include Instrument
+  extend Instrument
+
 end

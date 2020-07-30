@@ -1,24 +1,41 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Como instalar
+Descargar este repo, instalar las gemas, descargar imagenes de docker
+```
+git clone [ruta] directorio
+cd directorio
+bundle install
+docker-compose pull
+```
 
-Things you may want to cover:
+## Como usar
+Iniciar zookeeper y kafka
+```
+docker-compose up zookeeper kafka
+rails c
+```
 
-* Ruby version
+## Atención!
+Los modelos deben generarse con --primary-key-type=string
 
-* System dependencies
+P.ej.:
+```
+rails g model User phone:string:uniq password:string --primary-key-type=string
+rails g migration AddDeletedAtToUser deleted_at:datetime:index
+```
 
-* Configuration
+## Que hace?
+Agrega generators para Karafka Responders
+Dispara metricas de StatsD
+Genera logs para agregacion
+Sobrecarga modelos para usar UUID en lugar de ids secuenciales
 
-* Database creation
+## TO DO
+* agregar generators para Karafka Consumers
+* agregar config por default para statsd
+* incluir profiler (https://github.com/MiniProfiler/rack-mini-profiler)
+* sobrecargar model generator con --primary-key-type=string  (No es posible por el momento https://github.com/rails/rails/pull/13972)
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+* arrastrar el id de request que vienen en el header a los responders para llevar la trazabilidad
+* considerar convertir este proyecto a gema para que si se actualiza algo solo se actualice la gema en los proyectos que salgan de este
