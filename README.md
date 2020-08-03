@@ -3,16 +3,17 @@
 ## Como instalar
 Descargar este repo, instalar las gemas, descargar imagenes de docker
 ```
+sudo apt-get install libsqlite3-dev
 git clone [ruta] directorio
 cd directorio
 bundle install
-docker-compose pull
+sudo docker-compose pull
 ```
 
 ## Como usar
 Iniciar zookeeper y kafka
 ```
-docker-compose up zookeeper kafka
+sudo docker-compose up zookeeper kafka
 rails c
 ```
 
@@ -21,14 +22,14 @@ Los modelos deben generarse con --primary-key-type=string
 
 P.ej.:
 ```
-rails g model User phone:string:uniq password:string --primary-key-type=string
-rails g migration AddDeletedAtToUser deleted_at:datetime:index
+rails g model User [tus campos] deleted_at:datetime:index --primary-key-type=string
 ```
 
 ## Que hace?
 Agrega generators para Karafka Responders
 Dispara metricas de StatsD
 Genera logs para agregacion
+Activa acts_as_paranoid por default
 Sobrecarga modelos para usar UUID en lugar de ids secuenciales
 
 ## TO DO

@@ -33,32 +33,31 @@ module Dossier
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
-    
+
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins '*'
         resource(
           '*',
           headers: :any,
-          methods: [:get, :patch, :put, :delete, :post, :options]
-          )
+          methods: %i[get patch put delete post options]
+        )
       end
     end
 
     initializer :configure_metrics, after: :initialize_logger do
-      ActiveSupport::Notifications.subscribe /./ do |event|
-        Rails.logger.error('"' + File.basename($0) + '"')
-        unless File.basename($0)[0..9] == "spring app" || [ "rake", "rails_destroy", "rails_generate" ].include?(File.basename($0))
-          metric_prefix = KarafkaApp.config.client_id + "." + event.name
+      ActiveSupport::Notifications.subscribe(/./) do |event|
+        Rails.logger.error('"' + File.basename($PROGRAM_NAME) + '"')
+        base = File.basename($PROGRAM_NAME)
+        unless base[0..9] == 'spring app' || %w[rake rails_destroy rails_generate].include?(base)
+          metric_prefix = KarafkaApp.config.client_id + '.' + event.name
           logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
           logger.level = Logger::DEBUG
-            logger.tagged(KarafkaApp.config.client_id, event.name, Time.now.to_i) {
-            logger.info(event)
-          }
+          logger.tagged(KarafkaApp.config.client_id, event.name, Time.now.to_i) { logger.info(event.as_json) }
           logger = nil
-          StatsD.measure( metric_prefix + ".duration",event.duration)
-          StatsD.measure( metric_prefix + ".allocations",event.allocations)
-          StatsD.increment( metric_prefix )
+          StatsD.measure(metric_prefix + '.duration', event.duration)
+          StatsD.measure(metric_prefix + '.allocations', event.allocations)
+          StatsD.increment(metric_prefix)
         end
       end
     end
