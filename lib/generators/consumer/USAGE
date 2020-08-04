@@ -1,0 +1,12 @@
+Usage:
+    rails generate consumer NOMBRE TOPICO
+
+Description:
+    Crea una clase que extiende de ApplicationConsumer en app/consumers
+    Para procesar mensajes de un topico de Kafka
+
+Example:
+    rails generate consumer Paciente pacientes_creados
+
+    This will create:
+        app/consumers/paciente.rb
