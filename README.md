@@ -48,5 +48,5 @@ Sobrecarga modelos para usar UUID en lugar de ids secuenciales
 * incluir profiler (https://github.com/MiniProfiler/rack-mini-profiler)
 * sobrecargar model generator con --primary-key-type=string  (No es posible por el momento https://github.com/rails/rails/pull/13972)
 
-* arrastrar el id de request que vienen en el header a los responders para llevar la trazabilidad
+* arrastrar el id de request que vienen en el header a los responders para llevar la trazabilidad (ponerlo en header para karafka X_REQUEST_ID, rails pone request.request_id disponible para los controllers si en la peticion viene el header X_REQUEST_ID, si no, lo genera aleatoriamente)
 * considerar convertir este proyecto a gema para que si se actualiza algo solo se actualice la gema en los proyectos que salgan de este

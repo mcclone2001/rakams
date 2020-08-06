@@ -45,11 +45,12 @@ module Dossier
       end
     end
 
-    initializer :configure_metrics, after: :initialize_logger do
-      ActiveSupport::Notifications.subscribe(/./) do |event|
+    initializer :configure_metrics, after: :finisher_hook do
+      expresion = ENV['NOTIFICATIONS_SUSCRIBE_REGEX'] || '.'
+      ActiveSupport::Notifications.subscribe(/#{expresion}/) do |event|
         Rails.logger.error('"' + File.basename($PROGRAM_NAME) + '"')
         base = File.basename($PROGRAM_NAME)
-        unless base[0..9] == 'spring app' || %w[rake rails_destroy rails_generate].include?(base)
+        unless base[0..9] == 'spring app' || %w[rspec rake rails_destroy rails_generate].include?(base)
           metric_prefix = KarafkaApp.config.client_id + '.' + event.name
           logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
           logger.level = Logger::DEBUG
