@@ -48,14 +48,26 @@ module Dossier
     initializer :configure_metrics, after: :finisher_hook do
       expresion = ENV['NOTIFICATIONS_SUSCRIBE_REGEX'] || '.'
       ActiveSupport::Notifications.subscribe(/#{expresion}/) do |event|
-        Rails.logger.error('"' + File.basename($PROGRAM_NAME) + '"')
+        # Rails.logger.error('"' + File.basename($PROGRAM_NAME) + '"')
         base = File.basename($PROGRAM_NAME)
         unless base[0..9] == 'spring app' || %w[rspec rake rails_destroy rails_generate].include?(base)
-          metric_prefix = KarafkaApp.config.client_id + '.' + event.name
+
           logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
           logger.level = Logger::DEBUG
-          logger.tagged(KarafkaApp.config.client_id, event.name, Time.now.to_i) { logger.info(event.as_json) }
-          logger = nil
+
+          nombre_cliente = KarafkaApp.config.client_id
+          nombre_evento = event.name
+          hora = Time.now.to_i
+
+          logger.tagged(nombre_cliente, nombre_evento, hora) do
+            prefijo = ''
+            if nombre_evento.match(/action_controller/)
+              prefijo = '[' + event.payload[:headers]['action_dispatch.request_id'] + ']'
+            end
+            logger.info(prefijo + event.payload.to_s)
+          end
+
+          metric_prefix = KarafkaApp.config.client_id + '.' + event.name
           StatsD.measure(metric_prefix + '.duration', event.duration)
           StatsD.measure(metric_prefix + '.allocations', event.allocations)
           StatsD.increment(metric_prefix)
