@@ -44,6 +44,10 @@ services:
             - "2023-2024:2023-2024"
             - "8125:8125/udp"
             - "8126:8126"
+    redis:
+        image: "redis"
+        ports:
+            - "6379:6379"
     app:
         build: .
         networks:
