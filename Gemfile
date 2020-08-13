@@ -7,6 +7,7 @@ gem 'statsd-instrument'
 gem 'active_model_serializers'
 gem 'acts_as_paranoid'
 gem 'redis'
+gem 'activeresource'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 6.0.3', '>= 6.0.3.2'

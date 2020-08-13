@@ -48,15 +48,22 @@ rails g consumer [Nombre] [topico]
 * agregar cache para recursos externos (empezar con active resource)
     - polling
     - events
+
 * sobrecargar ApplicationRecord para agregar eventos estandar para que otros servicios puedan cachear
     Altas
     Bajas
     Cambios
+
 * verificar la destruccion del consumer generator, especificamente la modificacion que hace a karafka.rb
+
 * agregar seguridad (por token)
+
 * agregar config por default para statsd
+
 * incluir profiler (https://github.com/MiniProfiler/rack-mini-profiler)
-* sobrecargar model generator con --primary-key-type=string  (No es posible por el momento https://github.com/rails/rails/pull/13972)
 
 * arrastrar el id de request que vienen en el header a los responders para llevar la trazabilidad (ponerlo en header para karafka X_REQUEST_ID, rails pone request.request_id disponible para los controllers si en la peticion viene el header X_REQUEST_ID, si no, lo genera aleatoriamente)
+
 * convertir este proyecto a gema para que si se actualiza algo solo se actualice la gema en los proyectos que salgan de este
+
+* sobrecargar model generator con --primary-key-type=string  (No es posible por el momento https://github.com/rails/rails/pull/13972)
