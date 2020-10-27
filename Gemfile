@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.6.3'
+gem 'elastic-apm'
 gem 'karafka'
 gem 'statsd-instrument'
 gem 'active_model_serializers'

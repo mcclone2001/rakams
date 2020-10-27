@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+    nginx:
+        image: "nginx"
+        volumes:
+            - ./nginx.config:/etc/nginx/nginx.conf:ro
+        ports:
+            - 81:81
+        networks:
+            - rakams_kafka-net
+
+networks:
+    rakams_kafka-net:
+        external: true

@@ -15,6 +15,8 @@ require "action_cable/engine"
 # require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
+require './lib/log_formatter'
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -34,6 +36,19 @@ module Dossier
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # all log outputs are going to be in json format, and only last 5 log files of 10mb are going to be kept
+    # config.logger = ActiveSupport::Logger.new(config.paths["log"].first, 5, 10 * 1024 * 1024)
+
+    # hack para obtener el request_id
+    # https://github.com/roidrage/lograge/issues/255#issuecomment-657328032
+    logger = ActiveSupport::Logger.new(config.paths["log"].first, 5, 10 * 1024 * 1024)
+    logger.formatter = LogFormatter.new
+    config.log_tags = [:request_id]
+    config.logger = ActiveSupport::TaggedLogging.new(logger)
+    
+    # para evitar errores al recibir las solicitudes ruteadas por nginx
+    config.hosts.clear
+
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins '*'
@@ -45,34 +60,30 @@ module Dossier
       end
     end
 
-    initializer :configure_metrics, after: :finisher_hook do
-      expresion = ENV['NOTIFICATIONS_SUSCRIBE_REGEX'] || '.'
-      ActiveSupport::Notifications.subscribe(/#{expresion}/) do |event|
-        # Rails.logger.error('"' + File.basename($PROGRAM_NAME) + '"')
-        base = File.basename($PROGRAM_NAME)
-        unless base[0..9] == 'spring app' || %w[rspec rake rails_destroy rails_generate].include?(base)
+    # initializer :configure_metrics, after: :finisher_hook do
+    #   expresion = ENV['NOTIFICATIONS_SUSCRIBE_REGEX'] || '.'
+    #   ActiveSupport::Notifications.subscribe(/#{expresion}/) do |event|
+    #     # Rails.logger.error('"' + File.basename($PROGRAM_NAME) + '"')
+    #     base = File.basename($PROGRAM_NAME)
+    #     unless base[0..9] == 'spring app' || %w[rspec rake rails_destroy rails_generate].include?(base)
 
-          logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
-          logger.level = Logger::DEBUG
+    #       logger = Rails.logger
 
-          nombre_cliente = KarafkaApp.config.client_id
-          nombre_evento = event.name
-          hora = Time.now.to_i
+    #       nombre_cliente = KarafkaApp.config.client_id
+    #       nombre_evento = event.name
+    #       hora = Time.now.to_i
 
-          logger.tagged(nombre_cliente, nombre_evento, hora) do
-            prefijo = ''
-            if nombre_evento.match(/action_controller/)
-              prefijo = '[' + event.payload[:headers]['action_dispatch.request_id'] + ']'
-            end
-            logger.info(prefijo + event.payload.to_s)
-          end
+    #       if nombre_evento.match(/action_controller/)
+    #         # logger.info(event.payload[:headers]['action_dispatch.request_id'])
+    #         logger.info(event.payload.to_json)
+    #       end
 
-          metric_prefix = KarafkaApp.config.client_id + '.' + event.name
-          StatsD.measure(metric_prefix + '.duration', event.duration)
-          StatsD.measure(metric_prefix + '.allocations', event.allocations)
-          StatsD.increment(metric_prefix)
-        end
-      end
-    end
+    #       metric_prefix = KarafkaApp.config.client_id + '.' + event.name
+    #       StatsD.measure(metric_prefix + '.duration', event.duration)
+    #       StatsD.measure(metric_prefix + '.allocations', event.allocations)
+    #       StatsD.increment(metric_prefix)
+    #     end
+    #   end
+    # end
   end
 end
