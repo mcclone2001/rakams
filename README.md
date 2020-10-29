@@ -1,7 +1,7 @@
 # README
 
 ## Como instalar
-Descargar este repo, instalar las gemas, descargar imagenes de docker
+Descargar este repo, instalar las gemas, descargar imagenes de docker (esto ultimo tarda +30mins)
 ```
 sudo apt-get install libsqlite3-dev
 git clone [ruta] directorio
@@ -67,3 +67,53 @@ rails g consumer [Nombre] [topico]
 * convertir este proyecto a gema para que si se actualiza algo solo se actualice la gema en los proyectos que salgan de este
 
 * sobrecargar model generator con --primary-key-type=string  (No es posible por el momento https://github.com/rails/rails/pull/13972)
+
+
+## Comprobar Debezium
+Asegurarse de descomentar esta línea en el archivo pgdata/postgresql.conf, si la carpeta no existe inicia y deten postgres (docker-compose up db)
+```
+178: wal_level = logical
+233: max_wal_senders = 1
+238: max_replication_slots = 1
+```
+
+y agregar esta linea al archivo pgdata/pg_hba.conf
+```
+host    replication     postgres        0.0.0.0/0            trust
+```
+
+Iniciar Postgres, Kafka, Zookeeper y Debezium Connect
+```
+docker-compose build connect && docker-compose up db connect kafka zookeeper
+```
+
+Registrar el conector
+```
+curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" http://localhost:8083/connectors/ -d @docker-compose/debezium-jdbc/config.json
+```
+
+verifica que el conector fue registrado
+```
+curl -H "Accept:application/json" localhost:8083/connectors/
+```
+
+listar topicos
+```
+docker run -it --rm --env ZOOKEEPER_CONNECT=zookeeper:2181 --net rakams_kafka-net debezium/kafka list-topics
+```
+
+para ver todos los mensajes en un topico
+```
+docker run -it --rm --env ZOOKEEPER_CONNECT=zookeeper:2181 --env KAFKA_BROKER=kafka:9092 --net rakams_kafka-net debezium/kafka watch-topic -a consultation_requests
+```
+
+para los mensajes en un topico mientras llegan
+```
+docker run -it --rm --env ZOOKEEPER_CONNECT=zookeeper:2181 --env KAFKA_BROKER=kafka:9092 --link debezium-aws-rds-config-scripts_zookeeper_1:zookeeper --link debezium-aws-rds-config-scripts_kafka_1:kafka --net debezium-aws-rds-config-scripts_default debezium/kafka watch-topic consultation_requests
+```
+
+
+Quedo mal? Borra el conector.
+```
+curl -i -X DELETE -H "Accept:application/json" localhost:8083/connectors/consultation-request-connector
+```

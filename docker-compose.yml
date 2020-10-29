@@ -5,7 +5,9 @@ networks:
 
 services:
     db:
-        image: "postgres:9.5"
+        image: "debezium/postgres:9.6"
+        networks:
+            - kafka-net
         ports:
             - "5432:5432"
         volumes:
@@ -36,18 +38,32 @@ services:
             - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
         depends_on:
             - zookeeper
-    statsd:
-        image: "graphiteapp/graphite-statsd"
+    connect:
+        image: debezium/connect-jdbc:0.7.2
+        build:
+            context: docker-compose/debezium-jdbc
         ports:
-            - "80:80"
-            - "2003-2004:2003-2004"
-            - "2023-2024:2023-2024"
-            - "8125:8125/udp"
-            - "8126:8126"
-    redis:
-        image: "redis"
-        ports:
-            - "6379:6379"
+            - 8083:8083
+            - 5005:5005
+        networks:
+            - kafka-net
+        environment:
+            - BOOTSTRAP_SERVERS=kafka:9092
+            - GROUP_ID=1
+            - CONFIG_STORAGE_TOPIC=my_connect_configs
+            - OFFSET_STORAGE_TOPIC=my_connect_offsets
+    # statsd:
+    #     image: "graphiteapp/graphite-statsd"
+    #     ports:
+    #         - "80:80"
+    #         - "2003-2004:2003-2004"
+    #         - "2023-2024:2023-2024"
+    #         - "8125:8125/udp"
+    #         - "8126:8126"
+    # redis:
+    #     image: "redis"
+    #     ports:
+    #         - "6379:6379"
     app:
         build: .
         networks:

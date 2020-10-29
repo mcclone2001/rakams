@@ -1,0 +1,22 @@
+{
+    "name": "consultation-request-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "db",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "password",
+        "database.dbname" : "nimbox_development",
+        "plugin.name": "wal2json",
+        "slot.name": "wal2json_rds",
+        "snapshot.mode": "always",
+        "database.server.name": "nimbox_server",
+        "database.history.kafka.bootstrap.servers": "kafka:9092",
+        "database.history.kafka.topic": "consultation_requests",
+        "table.whitelist": "public.consultation_requests", 
+        "transforms": "route",
+        "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+        "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
+        "transforms.route.replacement": "$3"
+    }
+}
