@@ -44,6 +44,10 @@ class KarafkaApp < Karafka::App
   # )
 
   consumer_groups.draw do
+    topic :consultation_requests do
+      consumer BienvenidaConsumer
+    end
+
     # topic :example do
     #   consumer ExampleConsumer
     # end
