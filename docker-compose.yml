@@ -77,10 +77,10 @@ services:
     apm-server:
         image: docker.elastic.co/apm/apm-server:7.9.2
         depends_on:
-            elasticsearch:
-                condition: service_healthy
-            kibana:
-                condition: service_healthy
+            - elasticsearch
+                # condition: service_healthy
+            - kibana
+                # condition: service_healthy
         cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
         cap_drop: ["ALL"]
         ports:
@@ -141,8 +141,8 @@ services:
     kibana:
         image: docker.elastic.co/kibana/kibana:7.9.2
         depends_on:
-            elasticsearch:
-                condition: service_healthy
+            - elasticsearch
+                # condition: service_healthy
         environment:
             ELASTICSEARCH_URL: http://elasticsearch:9200
             ELASTICSEARCH_HOSTS: http://elasticsearch:9200
